@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-CROP_Y_TOP = 357
-CROP_Y_BOTTOM = 1765
+CROP_INITIAL_TOP = 357
+CROP_INITIAL_BOTTOM = 1765
 PLOT_X = 45
 WHITE = 1
 BLACK = 0
@@ -18,8 +18,8 @@ def darken(image):
     img[np.logical_not(mask)] = WHITE
     return img
 
-def crop(image):
-    return image[CROP_Y_TOP:CROP_Y_BOTTOM, :]
+def crop_initial(image):
+    return image[CROP_INITIAL_TOP:CROP_INITIAL_BOTTOM, :]
 
 def show(image):
     plt.imshow(image, cmap = 'gray')
@@ -37,14 +37,18 @@ def base_crop(image):
     while image[base + 1, PLOT_X] == BLACK:
         base += 1
     
-    return image[:base, :]
+    return image[:base + 1, :]
+
+def crop_plot(image):
+    return image[:, PLOT_X:-PLOT_X]
 
 def main():
     image = get_img()
-    image = crop(image)
+    image = crop_initial(image)
     image = rgb2gray(image)
     image = darken(image)
     image = base_crop(image)
+    image = crop_plot(image)
     show(image)
 
 main()

@@ -3,16 +3,28 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 CROP_Y_TOP = 357
-CROP_Y_BOTTOM = 1775
+CROP_Y_BOTTOM = 1765
 
-image = mpimg.imread('asd.png')
+def get_img():
+    return mpimg.imread('asd.png')
 
-mask = image != 1
-image[mask] = 0
+def darken(image):
+    img = image.copy()
+    mask = img != 1
+    img[mask] = 0
+    return img
 
-image = image[CROP_Y_TOP:CROP_Y_BOTTOM, :]
+def crop(image):
+    return image[CROP_Y_TOP:CROP_Y_BOTTOM, :]
 
-print(image.shape)
+def show(image):
+    plt.imshow(image)
+    plt.show()
 
-plt.imshow(image)
-plt.show()
+def main():
+    image = get_img()
+    image = darken(image)
+    image = crop(image)
+    show(image)
+
+main()

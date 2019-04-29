@@ -161,25 +161,30 @@ def simplify(image):
 def load_digit_data():
     data = {}
     for path in glob.glob('digits\*.png'):
-        image = expand_digit(simplify(mpimg.imread(path)))
+        image = expand(simplify(mpimg.imread(path)))
         digit = path[-5:-4]
         data[digit] = image
     
     return data
 
-def expand_digit(image):
+def expand(digit):
     img = np.ones((MAX_DIGIT_HEIGHT, MAX_DIGIT_WIDTH))
-    img[:image.shape[0], :image.shape[1]] = image
+    img[:digit.shape[0], :digit.shape[1]] = digit
     return img
 
 def difference(a, b):
     return np.absolute(a - b).sum()
 
-def recognize_digit(image, data):
-    diffs = [[digit, difference(image, digit_image)] for digit, digit_image in data.items()]
+def recognize(digit_image, data):
+    diffs = [[digit, difference(digit_image, reference_digit)] for digit, reference_digit in data.items()]
     return min(diffs, key = lambda diff: diff[1])[0]
 
+def assemble(digits):
+    return sum([int(digit) * (10 ** i) for (i, digit) in enumerate(digits[::-1])])
+
 def main():
+    data = load_digit_data()
+
     image = get_img()
     image = crop_initial(image)
     image = simplify(image)
@@ -191,11 +196,11 @@ def main():
     images = [vertical_crop(img) for img in images]
     images = [digit_split(img) for img in images]
     images = [[horizontal_crop(digit) for digit in digits] for digits in images]
-    images = [[expand_digit(digit) for digit in digits] for digits in images]
+    images = [[expand(digit) for digit in digits] for digits in images]
+    numbers = [[recognize(digit, data) for digit in digits] for digits in images]
+    numbers = [assemble(digits) for digits in numbers]
 
-    data = load_digit_data()
-
-    print(recognize_digit(images[2][0], data))
+    print(numbers)
 
     # for i, img in enumerate(images):
     #     for j, digit in enumerate(img):

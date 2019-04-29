@@ -74,10 +74,25 @@ def get_bar_number_images(image):
     xs = get_bar_xs()
     heights = get_bar_heights(image, xs)
 
-    return image
+    coords = []
+    for i in range(BAR_COUNT):
+        x = xs[i]
+        height = heights[i]
+        width = BAR_WIDTHS[i]
 
-def save_image(image):
-    mpimg.imsave('output.png', image, cmap = 'gray')
+        x1 = x
+        y1 = -(height + NUMBER_IMAGE_HEIGHT)
+        x2 = x1 + width
+        y2 = y1 + NUMBER_IMAGE_HEIGHT
+
+        coords.append([x1, y1, x2, y2])
+    
+    number_images = [image[y1:y2, x1:x2] for (x1, y1, x2, y2) in coords]
+
+    return number_images
+
+def save_image(image, name):
+    mpimg.imsave(name, image, cmap = 'gray')
 
 def main():
     image = get_img()
@@ -86,8 +101,10 @@ def main():
     image = darken(image)
     image = base_crop(image)
     image = crop_plot(image)
-    get_bar_number_images(image)
-    save_image(image)
-    show(image)
+    number_images = get_bar_number_images(image)
+    for i, img in enumerate(number_images):
+        save_image(img, '{}.png'.format(i))
+    # save_image(image)
+    # show(image)
 
 main()

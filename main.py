@@ -116,6 +116,42 @@ def vertical_crop(image):
 
     return img.transpose()[mask].transpose()
 
+def sequence_length(seq):
+    current_elem = seq[0]
+    current_length = 1
+
+    sl = []
+    for i, elem in enumerate(seq[1:]):
+        if i == len(seq) - 2:
+            sl.append(current_length + 1)
+
+        if elem == current_elem:
+            current_length += 1
+        else:
+            sl.append(current_length)
+            current_length = 1
+            current_elem = elem
+    
+    return sl
+
+def sequence_accumulate(seq):
+    s = np.array(seq)
+    for i in range(len(s) - 1):
+        s[(i + 1):] += seq[i]
+    
+    return s.tolist()
+
+def digit_split(image):
+    mask = (image == 0).any(axis = 0)
+    sl = sequence_length(mask)
+    sa = [0] + sequence_accumulate(sl)
+
+    digit_count = int(len(sa) / 2)
+    digit_coords = [[sa[i * 2], sa[i * 2 + 1]] for i in range(digit_count)]
+    digit_images = [image[:, x1:x2] for (x1, x2) in digit_coords]
+
+    return digit_images
+
 def main():
     image = get_img()
     image = crop_initial(image)
@@ -127,10 +163,12 @@ def main():
     images = get_bar_number_images(image)
     images = [horizontal_crop(img) for img in images]
     images = [vertical_crop(img) for img in images]
+    images = [digit_split(img) for img in images]
 
     # for i, img in enumerate(images):
-    #     save_image(img, '{}.png'.format(i))
+    #     for j, digit in enumerate(img):
+    #         save_image(digit, '{} {}.png'.format(i, j))
 
-    show(images[1])
+    show(images[5][0])
 
 main()

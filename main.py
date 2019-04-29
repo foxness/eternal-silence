@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import glob
 
 CROP_INITIAL_TOP = 357
 CROP_INITIAL_BOTTOM = 1765
@@ -152,6 +153,15 @@ def digit_split(image):
 
     return digit_images
 
+def load_digit_data():
+    data = {}
+    for path in glob.glob('digits\*.png'):
+        image = mpimg.imread(path)
+        digit = path[-5:-4]
+        data[digit] = image
+    
+    return data
+
 def main():
     image = get_img()
     image = crop_initial(image)
@@ -165,10 +175,14 @@ def main():
     images = [vertical_crop(img) for img in images]
     images = [digit_split(img) for img in images]
 
+    data = load_digit_data()
+
+    show(data['7'])
+
     # for i, img in enumerate(images):
     #     for j, digit in enumerate(img):
     #         save_image(digit, '{} {}.png'.format(i, j))
 
-    show(images[5][0])
+    # show(images[5][0])
 
 main()

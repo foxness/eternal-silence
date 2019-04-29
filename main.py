@@ -155,27 +155,34 @@ def digit_split(image):
 
     return digit_images
 
+def simplify(image):
+    return darken(rgb2gray(image))
+
 def load_digit_data():
     data = {}
     for path in glob.glob('digits\*.png'):
-        image = mpimg.imread(path)
+        image = expand_digit(simplify(mpimg.imread(path)))
         digit = path[-5:-4]
         data[digit] = image
     
     return data
 
-# flatten = lambda l: [item for sublist in l for item in sublist]
-
-def expand_image(image):
+def expand_digit(image):
     img = np.ones((MAX_DIGIT_HEIGHT, MAX_DIGIT_WIDTH))
     img[:image.shape[0], :image.shape[1]] = image
     return img
 
+def difference(a, b):
+    return np.absolute(a - b).sum()
+
+def recognize_digit(image, data):
+    diffs = [[digit, difference(image, digit_image)] for digit, digit_image in data.items()]
+    return min(diffs, key = lambda diff: diff[1])[0]
+
 def main():
     image = get_img()
     image = crop_initial(image)
-    image = rgb2gray(image)
-    image = darken(image)
+    image = simplify(image)
     image = base_crop(image)
     image = crop_plot(image)
 
@@ -184,20 +191,14 @@ def main():
     images = [vertical_crop(img) for img in images]
     images = [digit_split(img) for img in images]
     images = [[horizontal_crop(digit) for digit in digits] for digits in images]
+    images = [[expand_digit(digit) for digit in digits] for digits in images]
 
-    # max_width = max(flatten([[digit.shape[1] for digit in digits] for digits in images]))
-    # max_height = max(flatten([[digit.shape[0] for digit in digits] for digits in images]))
-    # print('max_width: {}'.format(max_width))
-    # print('max_height: {}'.format(max_height))
+    data = load_digit_data()
 
-    # data = load_digit_data()
+    print(recognize_digit(images[2][0], data))
 
-    # show(data['7'])
-
-    for i, img in enumerate(images):
-        for j, digit in enumerate(img):
-            save_image(digit, '{} {}.png'.format(i, j))
-
-    # show(expand_image(images[5][0]))
+    # for i, img in enumerate(images):
+    #     for j, digit in enumerate(img):
+    #         save_image(digit, '{} {} {}.png'.format(i, j, recognize_digit(digit, data)))
 
 main()

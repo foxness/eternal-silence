@@ -15,7 +15,7 @@ BLACK = 0
 BAR_COUNT = len(BAR_WIDTHS)
 
 def get_img():
-    return mpimg.imread('asd.png')
+    return mpimg.imread('input.png')
 
 def darken(image):
     img = image.copy()
@@ -70,10 +70,7 @@ def get_bar_heights(image, bar_xs):
     
     return heights
 
-def get_bar_number_images(image):
-    xs = get_bar_xs()
-    heights = get_bar_heights(image, xs)
-
+def get_number_image_coords(xs, heights):
     coords = []
     for i in range(BAR_COUNT):
         x = xs[i]
@@ -86,6 +83,13 @@ def get_bar_number_images(image):
         y2 = y1 + NUMBER_IMAGE_HEIGHT
 
         coords.append([x1, y1, x2, y2])
+    
+    return coords
+
+def get_bar_number_images(image):
+    xs = get_bar_xs()
+    heights = get_bar_heights(image, xs)
+    coords = get_number_image_coords(xs, heights)
     
     number_images = [image[y1:y2, x1:x2] for (x1, y1, x2, y2) in coords]
 

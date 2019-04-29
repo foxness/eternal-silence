@@ -98,34 +98,23 @@ def get_bar_number_images(image):
 def save_image(image, name):
     mpimg.imsave(name, image, cmap = 'gray')
 
-def horizontal_crop(images):
-    imgs = [img.copy() for img in images]
+def horizontal_crop(image):
+    img = image.copy()
+    mask = (img == 0).any(axis = 1)
 
-    imgs_new = []
-    for img in imgs:
-        mask = (img == 0).any(axis = 1)
-        img_new = img[mask]
+    return img[mask]
 
-        imgs_new.append(img_new)
+def vertical_crop(image):
+    img = image.copy()
 
-    return imgs_new
+    mask = (img == 0).any(axis = 0)
 
-def vertical_crop(images):
-    imgs = [img.copy() for img in images]
+    x1 = mask.argmax()
+    x2 = len(mask) - mask[::-1].argmax()
 
-    imgs_new = []
-    for img in imgs:
-        mask = (img == 0).any(axis = 0)
+    mask[x1:x2] = True
 
-        x1 = mask.argmax()
-        x2 = len(mask) - mask[::-1].argmax()
-        mask[x1:x2] = True
-
-        img_new = img.transpose()[mask].transpose()
-
-        imgs_new.append(img_new)
-
-    return imgs_new
+    return img.transpose()[mask].transpose()
 
 def main():
     image = get_img()
@@ -136,12 +125,12 @@ def main():
     image = crop_plot(image)
 
     images = get_bar_number_images(image)
-    images = horizontal_crop(images)
-    images = vertical_crop(images)
+    images = [horizontal_crop(img) for img in images]
+    images = [vertical_crop(img) for img in images]
 
-    for i, img in enumerate(images):
-        save_image(img, '{}.png'.format(i))
+    # for i, img in enumerate(images):
+    #     save_image(img, '{}.png'.format(i))
 
-    show(images[0])
+    show(images[1])
 
 main()

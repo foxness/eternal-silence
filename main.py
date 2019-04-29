@@ -9,6 +9,8 @@ PLOT_X = 45
 BAR_WIDTHS = [137] * 3 + [138] + [137] * 3
 BAR_GAP_WIDTH = 5
 NUMBER_IMAGE_HEIGHT = 61
+MAX_DIGIT_HEIGHT = 32
+MAX_DIGIT_WIDTH = 22
 
 WHITE = 1
 BLACK = 0
@@ -162,6 +164,13 @@ def load_digit_data():
     
     return data
 
+# flatten = lambda l: [item for sublist in l for item in sublist]
+
+def expand_image(image):
+    img = np.ones((MAX_DIGIT_HEIGHT, MAX_DIGIT_WIDTH))
+    img[:image.shape[0], :image.shape[1]] = image
+    return img
+
 def main():
     image = get_img()
     image = crop_initial(image)
@@ -174,15 +183,21 @@ def main():
     images = [horizontal_crop(img) for img in images]
     images = [vertical_crop(img) for img in images]
     images = [digit_split(img) for img in images]
+    images = [[horizontal_crop(digit) for digit in digits] for digits in images]
 
-    data = load_digit_data()
+    # max_width = max(flatten([[digit.shape[1] for digit in digits] for digits in images]))
+    # max_height = max(flatten([[digit.shape[0] for digit in digits] for digits in images]))
+    # print('max_width: {}'.format(max_width))
+    # print('max_height: {}'.format(max_height))
 
-    show(data['7'])
+    # data = load_digit_data()
 
-    # for i, img in enumerate(images):
-    #     for j, digit in enumerate(img):
-    #         save_image(digit, '{} {}.png'.format(i, j))
+    # show(data['7'])
 
-    # show(images[5][0])
+    for i, img in enumerate(images):
+        for j, digit in enumerate(img):
+            save_image(digit, '{} {}.png'.format(i, j))
+
+    # show(expand_image(images[5][0]))
 
 main()

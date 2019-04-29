@@ -5,6 +5,10 @@ import matplotlib.image as mpimg
 CROP_INITIAL_TOP = 357
 CROP_INITIAL_BOTTOM = 1765
 PLOT_X = 45
+BAR_WIDTH = 137
+BAR_GAP_WIDTH = 5
+BAR_COUNT = 7
+
 WHITE = 1
 BLACK = 0
 
@@ -42,6 +46,23 @@ def base_crop(image):
 def crop_plot(image):
     return image[:, PLOT_X:-PLOT_X]
 
+def asd(image):
+    heights = []
+    for x in [(BAR_WIDTH + BAR_GAP_WIDTH) * i for i in range(BAR_COUNT)]:
+        print(x)
+        y = 0
+        while image[-y - 1, x] == BLACK:
+            y += 1
+        
+        heights.append(y)
+    
+    print(heights)
+
+    return image
+
+def save_image(image):
+    mpimg.imsave('output.png', image, cmap = 'gray')
+
 def main():
     image = get_img()
     image = crop_initial(image)
@@ -49,6 +70,8 @@ def main():
     image = darken(image)
     image = base_crop(image)
     image = crop_plot(image)
+    asd(image)
+    save_image(image)
     show(image)
 
 main()
